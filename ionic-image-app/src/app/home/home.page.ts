@@ -71,7 +71,19 @@ export class HomePage {
     await actionSheet.present();
   }
 
-  uploadFile() {}
+  uploadFile(event: EventTarget) {
+    const eventObj: MSInputMethodContext = event as MSInputMethodContext;
+    const target: HTMLInputElement = eventObj.target as HTMLInputElement;
+    const file: File = target.files[0];
+    // NOTA: check if we can get file using directly event param (two tranformation done is due to secutiry reason??)
+
+    console.log('file: ', file);
+
+    this.api.uploadImageFile(file).subscribe((newImage: ApiImage) => {
+      console.log('after upload: ', newImage);
+      this.images.push(newImage);
+    })
+  }
 
   addImage(source: CameraSource) {}
 }

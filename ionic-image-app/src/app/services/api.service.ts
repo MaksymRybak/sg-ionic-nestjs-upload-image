@@ -21,7 +21,12 @@ export class ApiService {
 
   uploadImage() {}
 
-  uploadImageFile() {}
+  uploadImageFile(file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('name', file.name);
+    return this.http.post(`${this.url}/image`, formData);
+  }
 
   getImages() {
     return this.http.get<ApiImage[]>(`${this.url}/image`);
