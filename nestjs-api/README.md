@@ -19,5 +19,5 @@ nest g service image
 nest g class image/image.model
 
 ## Docker  
-run this command from docker folder 
+run this command from docker folder  
 docker-compose up --build -d mongodb  
