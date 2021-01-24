@@ -1,4 +1,55 @@
-import { Controller } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, NotFoundException, Param, Post, Req, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ImageService } from './image.service';
 
+// localhost:3000/image
 @Controller('image')
-export class ImageController {}
+export class ImageController {
+    // here we define the endpoint of our app
+
+    constructor(private imageService: ImageService) {
+
+    }
+
+    // localhost:3000/image
+    @Post('')
+    @UseInterceptors(FileInterceptor('file'))
+    async uploadImage(@UploadedFile() file, @Res() res, @Req() req, @Body() body) {
+        const image = await this.imageService.create(file, body);
+        const newImage = image.toObject();
+
+        const host = req.get('host');
+        newImage.image_file = undefined;
+        newImage.url = `http://${host}/image/${newImage._id}`;
+
+        return res.send(newImage);
+    }
+
+    @Delete(':id')
+    async deleteImage(@Res() res, @Body() body, @Param('id') id) {
+        const image = await this.imageService.removeImage(id);
+ 
+        if (!image) throw new NotFoundException('Image does not exist!');
+        return res.status(HttpStatus.OK).json({msg: 'Image removed.'});
+    }
+
+    @Get(':id') 
+    async getImage(@Res() res, @Body() body, @Param('id') id) {
+        const image = await this.imageService.getById(id);
+        if (!image) throw new NotFoundException('Image does not exist!');
+        res.setHeader('Content-Type', image.image_file.contentType);
+        return res.send(image.image_file.data.buffer);
+    }
+    @Get('')
+    async getImages(@Req() req) {
+        const host = req.get('host');
+        const images = await this.imageService.findAll();
+ 
+        images.forEach(image => {
+            image.url = `http://${host}/image/${image._id}`;
+        });
+ 
+        return images;
+    }
+
+}

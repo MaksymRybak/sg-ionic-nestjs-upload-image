@@ -1,1 +1,20 @@
-export class ImageModel {}
+import { prop } from '@typegoose/typegoose';
+import { Schema } from 'mongoose';
+
+export class ApiImage {
+  private _id: Schema.Types.ObjectId;
+
+  @prop({ required: true })
+  name: string;
+
+  @prop({ default: { data: null, contentType: null } })
+  image_file: {
+    data: Buffer;
+    contentType: string;
+  };
+
+  @prop({ default: Date.now() })
+  createdAt: Date;
+
+  url: string;  // not stored in DB, calculated on the fly
+}
