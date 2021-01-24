@@ -1,5 +1,5 @@
 import { Component, ElementRef, ViewChild } from "@angular/core";
-import { CameraSource, Plugins } from "@capacitor/core";
+import { CameraResultType, CameraSource, Plugins } from "@capacitor/core";
 import { ActionSheetController, Platform } from "@ionic/angular";
 import { ApiImage, ApiService } from "../services/api.service";
 
@@ -85,5 +85,44 @@ export class HomePage {
     })
   }
 
-  addImage(source: CameraSource) {}
+  async addImage(source: CameraSource) {
+    const image = await Camera.getPhoto({
+      quality: 60,
+      allowEditing: true,
+      resultType: CameraResultType.Base64,
+      source
+    });
+
+    console.log('image: ', image);
+
+    const blobData = this.b64toBlob(image.base64String, `image/${image.format}`);
+    const imageName = 'Give me a name.png';
+
+    this.api.uploadImage(blobData, imageName, image.format).subscribe((newImage: ApiImage) => {
+      console.log('after upload: ', newImage);
+      this.images.push(newImage);
+    })
+  }
+
+  // Helper function
+  // https://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript
+  b64toBlob(b64Data, contentType = '', sliceSize = 512) {
+    const byteCharacters = atob(b64Data);
+    const byteArrays = [];
+ 
+    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+      const slice = byteCharacters.slice(offset, offset + sliceSize);
+ 
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+ 
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+ 
+    const blob = new Blob(byteArrays, { type: contentType });
+    return blob;
+  }
 }

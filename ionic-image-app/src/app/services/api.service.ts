@@ -13,13 +13,18 @@ export interface ApiImage {
 })
 export class ApiService {
   url = "http://localhost:3000";
-  // http://de7abc5ab184.ngrok.io/image/
+  // url = 'http://de7abc5ab184.ngrok.io';
 
   constructor(private http: HttpClient) {}
 
   // NOTA: it's different how we upload image from the web and from device!!
 
-  uploadImage() {}
+  uploadImage(blobData, name, extension) {
+    const formData = new FormData();
+    formData.append('file', blobData, `myimage.${extension}`);
+    formData.append('name', name);
+    return this.http.post(`${this.url}/image`, formData);
+  }
 
   uploadImageFile(file: File) {
     const formData = new FormData();

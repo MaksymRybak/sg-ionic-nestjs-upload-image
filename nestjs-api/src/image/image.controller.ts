@@ -8,7 +8,6 @@ export class ImageController {
     // here we define the endpoint of our app
 
     constructor(private imageService: ImageService) {
-
     }
 
     // localhost:3000/image
