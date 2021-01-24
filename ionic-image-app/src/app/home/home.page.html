@@ -29,10 +29,14 @@
     </ion-col>
   </ion-row>
 
+  <!-- Trick to select photo in the browser
+    #fileInput - to access this element using ViewChild
+    hidden="true" - we do not want to see this input element
+  -->
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <input
-      type="file"
       #fileInput
+      type="file"
       (change)="uploadFile($event)"
       hidden="true"
       accept="image/*"

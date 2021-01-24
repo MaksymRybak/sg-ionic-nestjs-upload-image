@@ -1,6 +1,9 @@
-import { Component } from "@angular/core";
+import { Component, ElementRef, ViewChild } from "@angular/core";
+import { CameraSource, Plugins } from "@capacitor/core";
 import { ActionSheetController, Platform } from "@ionic/angular";
 import { ApiImage, ApiService } from "../services/api.service";
+
+const { Camera } = Plugins;
 
 @Component({
   selector: "app-home",
@@ -9,6 +12,8 @@ import { ApiImage, ApiService } from "../services/api.service";
 })
 export class HomePage {
   images: ApiImage[] = [];
+
+  @ViewChild("fileInput", { static: false }) fileInput: ElementRef;
 
   constructor(
     private api: ApiService,
@@ -20,7 +25,7 @@ export class HomePage {
 
   loadImages() {
     this.api.getImages().subscribe((images) => {
-      console.log('images: ', images)
+      console.log("images: ", images);
       this.images = images;
     });
   }
@@ -28,6 +33,45 @@ export class HomePage {
   deleteImage(image: ApiImage, index) {
     this.api.deleteImage(image._id).subscribe(() => {
       this.images.splice(index, 1);
-    })
+    });
   }
+
+  async selectImageSource() {
+    const buttons = [
+      {
+        text: "Take Photo",
+        icon: "camera",
+        handler: () => {
+          this.addImage(CameraSource.Camera);
+        },
+      },
+      {
+        text: "Choose from Photos library",
+        icon: "image",
+        handler: () => {
+          this.addImage(CameraSource.Photos);
+        },
+      },
+    ];
+
+    if (!this.plt.is("hybrid")) {
+      buttons.push({
+        text: "Choose a file",
+        icon: "attach",
+        handler: () => {
+          this.fileInput.nativeElement.click();
+        },
+      });
+    }
+
+    const actionSheet = await this.actionSheetCtrl.create({
+      header: 'Select Image Source',
+      buttons
+    })
+    await actionSheet.present();
+  }
+
+  uploadFile() {}
+
+  addImage(source: CameraSource) {}
 }
